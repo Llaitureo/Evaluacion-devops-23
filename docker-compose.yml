@@ -1,10 +1,26 @@
 services:
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD","mysqladmin","ping","-h","localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   backend-despachos:
     ports:
-      - "8081:80801"
+      - "8082:80802"
   backend-ventas:
     ports:
-      - "8082:80802"
+      - "8081:80801"
   frontend:
     ports:
       - "3000:3000"
+volumes:
+  mysql_data:
