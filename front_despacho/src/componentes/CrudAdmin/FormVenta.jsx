@@ -14,7 +14,7 @@ export const FormVenta = ({ onVentaCreada }) => {
     };
 
     try {
-      const url = process.env.REACT_APP_BACKEND_VENTAS_URL || 'http://localhost:8081/api/v1/ventas';
+      const url = `http://localhost:8081/api/v1/ventas`;
       
       await axios.post(url, nuevaVenta);
 

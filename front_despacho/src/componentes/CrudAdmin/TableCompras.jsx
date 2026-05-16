@@ -12,7 +12,7 @@ export const TableCompras = () => {
 
   const compras = async () => {
     try {
-      const response = await axios.get(process.env.REACT_APP_BACKEND_VENTAS_URL);
+      const response = await axios.get(`http://localhost:8081/api/v1/ventas`);
       setVentas(response.data);
     } catch (error) {
       console.error("Error al cargar ventas", error);

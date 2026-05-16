@@ -21,9 +21,9 @@ export const FormDespacho = ({ venta, onClose }) => {
     };
 
     try {
-      await axios.put(`${process.env.REACT_APP_BACKEND_VENTAS_URL}/${venta.idVenta}`, jsonUpdateVenta);
+      await axios.put(`http://localhost:8081/api/v1/ventas/${venta.idVenta}`, jsonUpdateVenta);
       
-      await axios.post(process.env.REACT_APP_BACKEND_DESPACHOS_URL, jsonDespacho);
+      await axios.post(`http://localhost:8082/api/v1/despachos`, jsonDespacho);
 
       Swal.fire({
         title: "¡Despacho Creado!",

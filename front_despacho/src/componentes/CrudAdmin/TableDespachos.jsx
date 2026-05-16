@@ -10,7 +10,7 @@ export const TableDespachos = () => {
   const [despachoSeleccionado, setDespachoSeleccionado] = useState(null);
 
   const cargarDespachos = async () => {
-    const url = process.env.REACT_APP_BACKEND_DESPACHOS_URL || 'http://localhost:8081/api/v1/despachos';
+    const url = 'http://localhost:8082/api/v1/despachos';
     try {
       const response = await axios.get(url);
       setDespachos(response.data);

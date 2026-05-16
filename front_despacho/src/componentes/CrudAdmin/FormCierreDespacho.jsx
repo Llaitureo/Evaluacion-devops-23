@@ -20,7 +20,7 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
     };
 
     try {
-      const url = `${process.env.REACT_APP_BACKEND_DESPACHOS_URL}/${despacho.idDespacho}`;
+      const url = `http://localhost:8082/api/v1/despachos/${despacho.idDespacho}`;
       
       await axios.put(url, jsonUpdate);
 
