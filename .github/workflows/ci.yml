@@ -24,14 +24,13 @@ jobs:
     - name: Setup node
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: './front_despacho/package-lock.json'
+        node-version: '20'
+
+    - name: Install dependencies
+      run: npm install --include=dev
 
     - name: Ejecutar tests del frontend
       run: npm run test
-      env:
-        CI: true
 
   front-build:
     needs: front-test
@@ -46,9 +45,9 @@ jobs:
       - name: Setup node (instalar node)
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: './front_despacho/package-lock.json'
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install --include=dev
       
       - name: run build
         run: npm run build
