@@ -38,18 +38,18 @@ services:
       DB_NAME: ${DB_NAME}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/actuator/health"]
-      interval: 20s
-      timeout: 5s
-      retries: 3
-      start_period: 40s
     depends_on:
       mysql:
         condition: service_healthy
     networks:
       - front-net
       - back-net
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/actuator/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
   # ========= #
   # DESPACHOS #
   # ========= #
@@ -72,7 +72,7 @@ services:
       mysql:
         condition: service_healthy
       backend-ventas:
-        condition: service_healthy
+        condition: service_started
     networks:
       - front-net
       - back-net
@@ -84,7 +84,7 @@ services:
       context: ./front_despacho
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8083:8083"
     user: "${CURRENT_UID}:${CURRENT_GID}"
     env_file:
       - ./.env
