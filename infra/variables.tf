@@ -5,3 +5,7 @@ variable "aws_region" {
 variable "project_name" {
   default = "devops-u2"
 }
+
+variable "key_pair_name" {
+  default = "devops-u2"
+}

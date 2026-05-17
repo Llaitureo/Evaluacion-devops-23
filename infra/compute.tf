@@ -1,37 +1,10 @@
 
 
-resource "aws_ecr_repository" "frontend_repo" {
-  name                 = "innovatech-frontend"
-  image_tag_mutability = "MUTABLE"
-  image_scanning_configuration {
-    scan_on_push = true 
-  }
-    force_delete = true
-}
-
-resource "aws_ecr_repository" "ventas_repo" {
-  name                 = "innovatech-ventas"
-  image_tag_mutability = "MUTABLE"
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-    force_delete = true
-}
-
-resource "aws_ecr_repository" "despachos_repo" {
-  name                 = "innovatech-despachos"
-  image_tag_mutability = "MUTABLE"
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-  force_delete = true
-}
-
 resource "aws_launch_template" "front_template" {
   name_prefix   = "front-template"
   image_id      = "ami-0c02fb55956c7d316"
   instance_type = "t2.micro"
-  key_name      = aws_key_pair.ssh_access.key_name
+  key_name      = var.key_pair_name
 
   iam_instance_profile {
     name = data.aws_iam_instance_profile.lab_profile.name
@@ -71,7 +44,7 @@ resource "aws_launch_template" "back_template" {
   name_prefix   = "back-template"
   image_id      = "ami-0c02fb55956c7d316"
   instance_type = "t2.micro"
-  key_name      = aws_key_pair.ssh_access.key_name
+  key_name      = var.key_pair_name
 
   iam_instance_profile {
     name = data.aws_iam_instance_profile.lab_profile.name

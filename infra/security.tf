@@ -1,63 +1,22 @@
-# ===================== #
-# SECURITY GROUPS - Web #
-# ===================== #
+# ===================================== #
+# SECURITY GROUPS - Capa Pública (Front) #
+# ===================================== #
 
 resource "aws_security_group" "web_sg" {
   name        = "web_sg"
-  description = "Allow HTTP traffic"
+  description = "Allow HTTP and SSH traffic to Frontend"
   vpc_id      = aws_vpc.main.id
-
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port   = 8083
+    to_port     = 8083
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-  ingress { //SSH para administración remota
+  ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["10.123.10.10/32"] //Permite acceso solo desde esta IP, CAMBIAR POR TU IP REAL
-  }
-
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1" # Permite todo el tráfico de salida
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-}
-
-# ====================== #
-# BACKEND SECURITY GROUP #
-# ====================== #
-resource "aws_security_group" "backend_sg" {
-  name        = "backend_sg"
-  description = "Allow traffic from web_sg"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    from_port       = 8080
-    to_port         = 8080
-    protocol        = "tcp"
-    security_groups = [aws_security_group.web_sg.id] // Permite tráfico solo desde el grupo de seguridad web_sg
-  }
-
-  ingress {
-    from_port       = 3306
-    to_port         = 3306
-    protocol        = "tcp"
-    security_groups = [aws_security_group.backend_sg.id] // Permite tráfico solo desde el grupo de seguridad backend_sg
-  }
-
-  ingress { //SSH para administración remota
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [aws_security_group.web_sg.id] // Permite acceso solo desde el grupo de seguridad web_sg
+    cidr_blocks = ["0.0.0.0/0"] 
   }
 
   egress {
@@ -66,5 +25,41 @@ resource "aws_security_group" "backend_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+}
 
+# ====================================== #
+# BACKEND SECURITY GROUP - Capa Privada  #
+# ====================================== #
+resource "aws_security_group" "backend_sg" {
+  name        = "backend_sg"
+  description = "Allow traffic from web_sg to microservices"
+  vpc_id      = aws_vpc.main.id
+  # ventas
+  ingress {
+    from_port       = 8081
+    to_port         = 8081
+    protocol        = "tcp"
+    security_groups = [aws_security_group.web_sg.id]
+  }
+  #despachos
+  ingress {
+    from_port       = 8082
+    to_port         = 8082
+    protocol        = "tcp"
+    security_groups = [aws_security_group.web_sg.id]
+  }
+
+  ingress {
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
+    security_groups = [aws_security_group.web_sg.id] 
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
