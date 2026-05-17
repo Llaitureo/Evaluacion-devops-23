@@ -85,17 +85,19 @@ jobs:
         run: sleep 10
       - name: Ejecutar test del backend
         env:
-          DB_PORT: 3306
-          DB_NAME: innovatech_ventas_db
-          DB_USERNAME: root
-          DB_PASSWORD: root_ci
-          DATASOURCE_URL: jdbc:mysql://localhost:3306/innovatech_ventas_db
+          # Estándar de Spring
           SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/innovatech_ventas_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
           SPRING_DATASOURCE_USERNAME: root
           SPRING_DATASOURCE_PASSWORD: root_ci
           SPRING_PROFILES_ACTIVE: test
+          
+          DB_PORT: 3306
+          DB_NAME: innovatech_ventas_db
+          DB_USERNAME: root
+          DB_PASSWORD: root_ci
+          DATASOURCE_URL: jdbc:mysql://localhost:3306/innovatech_ventas_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
         run: |
-          mvn clean test -Dspring.profiles.active=test
+          mvn clean test
   # ======================= #
   # BACKEND VENTAS BUILDING #
   # ======================= #
