@@ -260,5 +260,5 @@ jobs:
             cat .env | grep AWS_ECR_REGISTRY
             echo "======================================"
 
-            docker compose pull backend-ventas backend-despachos
+            docker compose pull
             docker compose up -d --remove-orphans
