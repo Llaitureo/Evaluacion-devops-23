@@ -248,8 +248,8 @@ jobs:
 
             echo "Sincronizando repositorio..."
             rm -rf ../temp-repo
-            git clone -b deploy https://github.com/Llaitureo/Evaluacion2-devops.git ../temp-repo
-            cp -r ../temp-repo/* .
+            git clone -b deploy https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Llaitureo/Evaluacion2-devops.git ../temp-repo
+            rsync -av --exclude='.git' ../temp-repo/ .
             rm -rf ../temp-repo
             
             sed -i '/secrets/d' .env
