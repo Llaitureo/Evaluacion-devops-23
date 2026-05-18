@@ -230,12 +230,11 @@ jobs:
             docker rm web-front || true
             docker run -d --restart always -p 8083:8083 --name web-front ${{ secrets.AWS_ECR_REGISTRY }}/innovatech-frontend:latest
 
-      - name: Leer docker-compose local
+      - name: Codificar docker-compose local
         id: read_compose
         run: |
-          echo "content<<EOF" >> $GITHUB_OUTPUT
-          cat docker-compose.yml >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          COMP_BASE64=$(base64 -w 0 docker-compose.yml)
+          echo "content=$COMP_BASE64" >> $GITHUB_OUTPUT
 
       - name: Despliegue en EC2 Privada (Backend & Módulos)
         uses: appleboy/ssh-action@v1.0.3
@@ -258,10 +257,8 @@ jobs:
 
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REGISTRY }}
 
-            echo "Escribiendo docker-compose.yml..."
-            cat << 'EOF' > docker-compose.yml
-            ${{ steps.read_compose.outputs.content }}
-            EOF
+            echo "Escribiendo docker-compose.yml desde Base64..."
+            echo "${{ steps.read_compose.outputs.content }}" | base64 -d > docker-compose.yml
 
             echo "AWS_ECR_REGISTRY=${{ secrets.AWS_ECR_REGISTRY }}" > .env
 
