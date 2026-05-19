@@ -43,7 +43,6 @@ services:
       retries: 3
       start_period: 40s
     networks:
-      - front-net
       - back-net
   backend-despachos:
     image: ${AWS_ECR_REGISTRY}/innovatech-despachos:latest
@@ -69,26 +68,10 @@ services:
       retries: 3
       start_period: 40s
     networks:
-      - front-net
       - back-net
-  frontend:
-    image: ${AWS_ECR_REGISTRY}/innovatech-frontend:latest  
-    container_name: innovatech-project-frontend
-    ports:
-      - "8083:8083"
-    restart: always
-    depends_on:
-      backend-ventas:
-        condition: service_healthy
-      backend-despachos:
-        condition: service_healthy
-    networks:
-      - front-net
 volumes:
   mysql_data:
 
 networks:
-  front-net:
-    driver: bridge
   back-net:
     driver: bridge

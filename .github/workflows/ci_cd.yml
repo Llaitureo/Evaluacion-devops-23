@@ -228,7 +228,11 @@ jobs:
             docker pull ${{ secrets.AWS_ECR_REGISTRY }}/innovatech-frontend:latest
             docker stop web-front || true
             docker rm web-front || true
-            docker run -d --restart always -p 8083:8083 --name web-front ${{ secrets.AWS_ECR_REGISTRY }}/innovatech-frontend:latest
+            docker run -d --restart always \
+              -p 8083:8083 \
+              --add-host backend-ventas:${{ secrets.EC2_BACKEND_HOST }} \
+              --add-host backend-despachos:${{ secrets.EC2_BACKEND_HOST }} \
+              --name web-front ${{ secrets.AWS_ECR_REGISTRY }}/innovatech-frontend:latest
 
       - name: Codificar archivos necesarios
         id: read_files
@@ -259,8 +263,6 @@ jobs:
 
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REGISTRY }}
 
-            
-
             echo "Escribiendo docker-compose.yml desde Base64..."
             echo "${{ steps.read_files.outputs.codigo_limpio }}" | base64 -d > docker-compose.yml
 
@@ -273,7 +275,7 @@ jobs:
             sudo chmod -R 777 /home/ec2-user/innovatech-project
 
             echo "Descargando imágenes desde AWS ECR..."
-            docker compose pull
+            docker compose pull backend-ventas backend-despachos
 
             echo "Limpiando contenedores o volúmenes huérfanos..."
             docker compose down --volumes --remove-orphans || true
