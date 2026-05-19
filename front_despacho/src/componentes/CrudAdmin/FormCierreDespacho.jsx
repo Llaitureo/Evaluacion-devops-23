@@ -2,6 +2,11 @@ import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import axios from "axios";
 
+export const API_DESPACHOS = import.meta.env.PROD
+  ? '/api/v1/despachos'
+  : 'http://localhost:8082/v1/despachos';
+const url = `${API_DESPACHOS}`;
+
 export const FormCierreDespacho = ({ despacho, onClose }) => {
   const { register, handleSubmit } = useForm({
     defaultValues: {
@@ -20,14 +25,7 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
     };
 
     try {
-      const env = import.meta.env.PROD ? '/api/v1' : 'http://localhost';
-
-        export const API_DESPACHOS = import.meta.env
-          ? `${env}/despachos` 
-          : `${env}:8082/v1/despachos`;
-        const url = `${API_DESPACHOS}/${despacho.idDespacho}`;
-      
-      await axios.put(url, jsonUpdate);
+      await axios.put(`${url}/${despacho.idDespacho}`, jsonUpdate);
 
       Swal.fire({
         title: isEntregado ? "¡Entrega Finalizada!" : "Estado Actualizado",
