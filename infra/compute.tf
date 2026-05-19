@@ -89,6 +89,11 @@ resource "aws_instance" "front_server" {
     id      = aws_launch_template.front_template.id
     version = "$Latest"
   }
+  root_block_device {
+    volume_size           = 20 
+    volume_type           = "gp3"
+    delete_on_termination = true
+  }
 
   tags = {
     Name = "Front-Server-Innovatech"
@@ -104,6 +109,10 @@ resource "aws_instance" "back_server" {
   tags = {
     Name = "Back-Server-Innovatech"
   }
-  
+  root_block_device {
+    volume_size           = 20
+    volume_type           = "gp3"
+    delete_on_termination = true
+  }
   depends_on = [aws_nat_gateway.nat_gw] 
 }
