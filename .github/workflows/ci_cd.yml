@@ -234,7 +234,7 @@ jobs:
         id: read_files
         run: |
           COMP_BASE64=$(base64 -w 0 docker-compose.yml)
-          echo "content=$COMP_BASE64" >> $GITHUB_OUTPUT
+          echo "codigo_limpio=$COMP_BASE64" >> $GITHUB_OUTPUT
 
           echo "mysql_init=$(base64 -w 0 db/init.sql)" >> $GITHUB_OUTPUT
 
@@ -262,7 +262,7 @@ jobs:
             
 
             echo "Escribiendo docker-compose.yml desde Base64..."
-            echo "${{ steps.read_file.outputs.content }}" | base64 -d > docker-compose.yml
+            echo "${{ steps.read_files.outputs.codigo_limpio }}" | base64 -d > docker-compose.yml
 
             mkdir -p db
             echo "${{ steps.read_files.outputs.mysql_init }}" | base64 -d > db/init.sql
