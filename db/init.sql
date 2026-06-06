@@ -1,11 +1,7 @@
 -- CONFIGURACIÓN PARA MÓDULO VENTAS
-CREATE DATABASE IF NOT EXISTS innovatech_ventas_db;
-CREATE USER IF NOT EXISTS 'user_ventas'@'%' IDENTIFIED BY 'innov4t3cH009';
-GRANT ALL PRIVILEGES ON innovatech_ventas_db.* TO 'user_ventas'@'%';
+CREATE DATABASE IF NOT EXISTS innovatech_db;
+CREATE USER IF NOT EXISTS 'innovatech_user'@'%' IDENTIFIED BY 'innovatech_pass';
+GRANT ALL PRIVILEGES ON innovatech_db.* TO 'innovatech_user'@'%';
 
--- CONFIGURACIÓN PARA MÓDULO DESPACHO
-CREATE DATABASE IF NOT EXISTS innovatech_despachos_db;
-CREATE USER IF NOT EXISTS 'user_despachos'@'%' IDENTIFIED BY 'innov4t3cH009D';
-GRANT ALL PRIVILEGES ON innovatech_despachos_db.* TO 'user_despachos'@'%';
 
 FLUSH PRIVILEGES;

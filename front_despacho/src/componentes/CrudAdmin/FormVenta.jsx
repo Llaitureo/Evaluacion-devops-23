@@ -2,6 +2,11 @@ import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import axios from "axios";
 
+export const API_VENTAS = import.meta.env.PROD
+  ? '/api/v1/ventas'
+  : 'http://localhost:8081/v1/ventas';
+const url = `${API_VENTAS}`;
+
 export const FormVenta = ({ onVentaCreada }) => {
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
@@ -14,8 +19,6 @@ export const FormVenta = ({ onVentaCreada }) => {
     };
 
     try {
-      const url = `http://localhost:8081/api/v1/ventas`;
-      
       await axios.post(url, nuevaVenta);
 
       Swal.fire({

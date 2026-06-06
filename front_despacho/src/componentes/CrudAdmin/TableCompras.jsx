@@ -4,6 +4,10 @@ import { FormDespacho } from "./FormDespacho";
 import { FormVenta } from "./FormVenta";
 import axios from "axios";
 
+export const API_VENTAS = import.meta.env.PROD
+  ? '/api/v1/ventas'
+  : 'http://localhost:8081/v1/ventas';
+
 export const TableCompras = () => {
   const [ventas, setVentas] = useState([]);
   const [openModal, setOpenModal] = useState(false);
@@ -12,7 +16,7 @@ export const TableCompras = () => {
 
   const compras = async () => {
     try {
-      const response = await axios.get(`http://localhost:8081/api/v1/ventas`);
+      const response = await axios.get(`${API_VENTAS}`);
       setVentas(response.data);
     } catch (error) {
       console.error("Error al cargar ventas", error);
