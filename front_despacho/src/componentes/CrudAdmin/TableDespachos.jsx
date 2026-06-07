@@ -4,17 +4,13 @@ import { Modal } from "./Modal";
 import { FormCierreDespacho } from "./FormCierreDespacho";
 import Swal from "sweetalert2";
 
-export const API_DESPACHOS = import.meta.env.PROD
-  ? '/api/v1/despachos'
-  : 'http://localhost:8082/v1/despachos';
-const url = `${API_DESPACHOS}`;
-
 export const TableDespachos = () => {
   const [despachos, setDespachos] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [despachoSeleccionado, setDespachoSeleccionado] = useState(null);
 
   const cargarDespachos = async () => {
+    const url = 'http://localhost:8082/api/v1/despachos';
     try {
       const response = await axios.get(url);
       setDespachos(response.data);

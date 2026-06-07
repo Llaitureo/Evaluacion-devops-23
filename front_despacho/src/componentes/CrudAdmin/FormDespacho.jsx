@@ -2,15 +2,6 @@ import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import axios from "axios";
 
-export const API_DESPACHOS = import.meta.env.PROD
-  ? '/api/v1/despachos'
-  : 'http://localhost:8082/v1/despachos';
-const url = `${API_DESPACHOS}`;
-
-export const API_VENTAS = import.meta.env.PROD
-  ? '/api/v1/ventas'
-  : 'http://localhost:8081/v1/ventas';
-
 export const FormDespacho = ({ venta, onClose }) => {
   const { register, handleSubmit, formState: { errors } } = useForm();
 
@@ -29,9 +20,10 @@ export const FormDespacho = ({ venta, onClose }) => {
       despachoGenerado: true 
     };
 
-    try {  
-      await axios.put(`${API_VENTAS}/${venta.idVenta}`, jsonUpdateVenta);
-      await axios.post(`${API_DESPACHOS}`, jsonDespacho);
+    try {
+      await axios.put(`http://localhost:8081/api/v1/ventas/${venta.idVenta}`, jsonUpdateVenta);
+      
+      await axios.post(`http://localhost:8082/api/v1/despachos`, jsonDespacho);
 
       Swal.fire({
         title: "¡Despacho Creado!",
