@@ -59,16 +59,10 @@ resource "aws_launch_template" "back_template" {
   user_data = base64encode(<<-EOF
     #!/bin/bash
     # Esperar conexión mediante la NAT Gateway configurada
-    until curl -s --head http://www.google.com | head -n 1 | grep "200" > /dev/null; do
+    until curl -s --head http://www.google.com | head -n 1 | grep "200 OK" > /dev/null; do
       echo "Esperando conexión a internet..."
       sleep 5
     done
-
-    fallocate -l 2G /swapfile
-    chmod 600 /swapfile
-    mkswap /swapfile
-    swapon /swapfile
-    echo '/swapfile none swap sw 0 0' >> /etc/fstab
 
     yum update -y
     amazon-linux-extras install docker -y
@@ -95,11 +89,6 @@ resource "aws_instance" "front_server" {
     id      = aws_launch_template.front_template.id
     version = "$Latest"
   }
-  root_block_device {
-    volume_size           = 20 
-    volume_type           = "gp3"
-    delete_on_termination = true
-  }
 
   tags = {
     Name = "Front-Server-Innovatech"
@@ -115,10 +104,6 @@ resource "aws_instance" "back_server" {
   tags = {
     Name = "Back-Server-Innovatech"
   }
-  root_block_device {
-    volume_size           = 20
-    volume_type           = "gp3"
-    delete_on_termination = true
-  }
+  
   depends_on = [aws_nat_gateway.nat_gw] 
 }

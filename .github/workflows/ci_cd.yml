@@ -86,15 +86,15 @@ jobs:
       - name: Ejecutar test del backend
         env:
           SPRING_PROFILES_ACTIVE: test
-          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/innovatech_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/innovatech_ventas_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
           SPRING_DATASOURCE_USERNAME: root
           SPRING_DATASOURCE_PASSWORD:
           
           DB_PORT: 3306
-          DB_NAME: innovatech_db
+          DB_NAME: innovatech_ventas_db
           DB_USERNAME: root
           DB_PASSWORD:
-          DATASOURCE_URL: jdbc:mysql://localhost:3306/innovatech_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+          DATASOURCE_URL: jdbc:mysql://localhost:3306/innovatech_ventas_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
         run: |
           mvn clean test
   # ======================= #
@@ -149,11 +149,11 @@ jobs:
         env:
           SPRING_PROFILES_ACTIVE: test
           DB_PORT: 3306
-          DB_NAME: innovatech_db
-          DB_USERNAME: root
-          DB_PASSWORD:
-          DATASOURCE_URL: jdbc:mysql://localhost:3306/innovatech_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&createDatabaseIfNotExist=true
-          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/innovatech_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+          DB_NAME_D: innovatech_despachos_db
+          DB_USERNAME_D: root
+          DB_PASSWORD_D:
+          DATASOURCE_URL_D: jdbc:mysql://localhost:3306/innovatech_despachos_db
+          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/innovatech_despachos_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
           SPRING_DATASOURCE_USERNAME: root
           SPRING_DATASOURCE_PASSWORD:
           
@@ -188,10 +188,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository (git clone)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # Actualizado a v4
 
       - name: Configurar las credenciales de AWS
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v4 # Actualizado a v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -201,11 +201,6 @@ jobs:
       - name: Login en ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Inyectar IP del Backend en la plantilla de Nginx
-        run: |
-          cd ./front_despacho
-          sed -i "s/__BACKEND_IP__/${{ secrets.EC2_BACKEND_HOST }}/g" nginx.conf
 
       - name: Build and Push Docker Images
         run: |
@@ -231,23 +226,9 @@ jobs:
           script: |
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REGISTRY }}
             docker pull ${{ secrets.AWS_ECR_REGISTRY }}/innovatech-frontend:latest
-
             docker stop web-front || true
             docker rm web-front || true
-
-            docker run -d --restart always \
-              -p 8083:8083 \
-              --add-host backend-ventas:${{ secrets.EC2_BACKEND_HOST }} \
-              --add-host backend-despachos:${{ secrets.EC2_BACKEND_HOST }} \
-              --name web-front ${{ secrets.AWS_ECR_REGISTRY }}/innovatech-frontend:latest
-
-      - name: Codificar archivos necesarios
-        id: read_files
-        run: |
-          COMP_BASE64=$(base64 -w 0 docker-compose.yml)
-          echo "codigo_limpio=$COMP_BASE64" >> $GITHUB_OUTPUT
-
-          echo "mysql_init=$(base64 -w 0 db/init.sql)" >> $GITHUB_OUTPUT
+            docker run -d --restart always -p 8083:8083 --name web-front ${{ secrets.AWS_ECR_REGISTRY }}/innovatech-frontend:latest
 
       - name: Despliegue en EC2 Privada (Backend & Módulos)
         uses: appleboy/ssh-action@v1.0.3
@@ -263,29 +244,21 @@ jobs:
             mkdir -p /home/ec2-user/innovatech-project
             cd /home/ec2-user/innovatech-project
 
-            echo "Limpiando directorio de trabajo..."
-            sudo rm -rf /home/ec2-user/innovatech-project
-            mkdir -p /home/ec2-user/innovatech-project
-            cd /home/ec2-user/innovatech-project
-
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REGISTRY }}
 
-            echo "Escribiendo docker-compose.yml desde Base64..."
-            echo "${{ steps.read_files.outputs.codigo_limpio }}" | base64 -d > docker-compose.yml
+            echo "Sincronizando repositorio..."
+            rm -rf ../temp-repo
+            git clone -b deploy https://github.com/Llaitureo/Evaluacion2-devops.git ../temp-repo
+            cp -r ../temp-repo/* .
+            rm -rf ../temp-repo
+            
+            sed -i '/secrets/d' .env
+            echo "Corrigiendo llaves de GitHub en el archivo .env..."
+            echo "AWS_ECR_REGISTRY=${{ secrets.AWS_ECR_REGISTRY }}" >> .env
 
-            mkdir -p db
-            echo "${{ steps.read_files.outputs.mysql_init }}" | base64 -d > db/init.sql
+            echo "=== CONTENIDO DEL .ENV CORREGIDO ==="
+            cat .env | grep AWS_ECR_REGISTRY
+            echo "======================================"
 
-            echo "AWS_ECR_REGISTRY=${{ secrets.AWS_ECR_REGISTRY }}" > .env
-
-            echo "Aplicando permisos de escritura para MySQL..."
-            sudo chmod -R 777 /home/ec2-user/innovatech-project
-
-            echo "Descargando imágenes desde AWS ECR..."
             docker compose pull backend-ventas backend-despachos
-
-            echo "Limpiando contenedores o volúmenes huérfanos..."
-            docker compose down --volumes --remove-orphans || true
-
-            echo "Levantando la infraestructura Innovatech..."
             docker compose up -d --remove-orphans
